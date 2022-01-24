@@ -113,9 +113,8 @@ public class MainActivity extends AppCompatActivity {
             p1.setTextSize(50);
             canvas.drawBitmap(screen, 0,0,p1);
 
-            canvas.drawText(Integer.toString(count), 0, 300, p1);
 
-            canvas.drawText("점수 : " + Integer.toString(score), 0, 200, p1);
+            canvas.drawText("점수 : " + Integer.toString(score + count), 0, 200, p1);
 
             canvas.drawBitmap(spaceship, spaceship_x, spaceship_y, p1);
             canvas.drawBitmap(leftKey, leftKey_x, leftKey_y, p1);
@@ -145,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
         public  void movePlanet() {
             for(int i = planet.size()-1; i>=0; i--) {
-                planet.get(i).move();
+                if (count / 100 > 0)
+                    planet.get(i).move(count/100 + 1);
             }
 
             for (int i = planet.size()-1; i>=0; i--) {
@@ -162,16 +162,23 @@ public class MainActivity extends AppCompatActivity {
                     && myM.get(j).y < planet.get(i).y + button_width) {
                         planet.remove(i);
                         myM.remove(j);
-                        score+=10;
+                        score+=100;
                     }
                 }
+            }
+
+            for (int i = planet.size() - 1; i >= 0; i--) {
+                if(spaceship_x < planet.get(i).x
+                && spaceship_x + spaceship_width > planet.get(i).x
+                && spaceship_y < planet.get(i).y + button_width)
+                    spaceship.eraseColor(Color.TRANSPARENT);
             }
         }
 
         Handler gHandler = new Handler() {
             public void handleMessage(Message msg) {
                 invalidate();
-                gHandler.sendEmptyMessageDelayed(0, 100);
+                gHandler.sendEmptyMessage(0);
             }
         };
 
@@ -184,18 +191,18 @@ public class MainActivity extends AppCompatActivity {
             if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
                 x = (int) event.getX();
                 y = (int) event.getY();
-            }
-
-            if ((x>leftKey_x) && (x<leftKey_x+button_width) && (y>leftKey_y) && (y<leftKey_y+button_width)){
-                spaceship_x-=20;
-                if (spaceship_x < 0)
-                    spaceship_x+=20;
-            }
-
-            if ((x>rightKey_x) && (x<rightKey_x+button_width) && (y>rightKey_y) && (y<rightKey_y+button_width)){
-                spaceship_x+=20;
-                if (spaceship_x + spaceship_width > Width)
+                
+                if ((x>leftKey_x) && (x<leftKey_x+button_width) && (y>leftKey_y) && (y<leftKey_y+button_width)){
                     spaceship_x-=20;
+                    if (spaceship_x < 0)
+                        spaceship_x+=20;
+                }
+
+                if ((x>rightKey_x) && (x<rightKey_x+button_width) && (y>rightKey_y) && (y<rightKey_y+button_width)){
+                    spaceship_x+=20;
+                    if (spaceship_x + spaceship_width > Width)
+                        spaceship_x-=20;
+                }
             }
 
             if (event.getAction() == MotionEvent.ACTION_DOWN)
